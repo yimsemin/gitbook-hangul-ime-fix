@@ -32,9 +32,18 @@ GitBook 내부 구조(구버전 Slate, React 내부 속성)에 기대므로 GitB
 
 ## 사용법
 
-1. Chrome 주소창에 `chrome://extensions`를 열고 Tampermonkey의 "세부정보"에서 "사용자 스크립트 허용"을 켭니다. 꺼져 있으면 Tampermonkey 메뉴에 스크립트가 켜진 것으로 보여도 실행되지 않습니다.
-2. Tampermonkey에서 새 스크립트를 만들고 [gitbook-hangul-ime-fix.user.js](gitbook-hangul-ime-fix.user.js)의 내용을 통째로 붙여 넣은 뒤 저장합니다.
-3. GitBook 편집기 탭을 새로 고칩니다. OS 입력기는 평소처럼 한글로 씁니다.
+1. Chrome에 [Tampermonkey](https://www.tampermonkey.net/)를 설치합니다. Violentmonkey도 쓸 수 있습니다.
+2. Chrome 주소창에 `chrome://extensions`를 열고 Tampermonkey의 "세부정보"에서 "사용자 스크립트 허용"을 켭니다. 꺼져 있으면 Tampermonkey 메뉴에 스크립트가 켜진 것으로 보여도 실행되지 않습니다.
+3. **[설치하기](https://raw.githubusercontent.com/yimsemin/gitbook-hangul-ime-fix/main/gitbook-hangul-ime-fix.user.js)** 링크를 열고 Tampermonkey 설치 화면에서 "설치"를 누릅니다.
+4. GitBook 편집기 탭을 새로 고칩니다. OS 입력기는 평소처럼 한글로 씁니다.
+
+### 업데이트
+
+이 링크로 설치하면 Tampermonkey가 주기적으로(기본 하루에 한 번) 저장소의 최신 버전을 확인해 자동으로 업데이트합니다. 바로 받으려면 Tampermonkey 대시보드에서 해당 스크립트를 열고 "업데이트 확인"을 누릅니다. 새 버전이 올라온 뒤 반영까지 몇 분 걸릴 수 있습니다.
+
+### 문제 신고
+
+GitBook 화면이 바뀌어 동작이 깨졌거나 다른 환경에서 증상이 나타나면 [Issues](https://github.com/yimsemin/gitbook-hangul-ime-fix/issues)에 사용 환경(운영체제, 브라우저, 한글 입력기)과 증상을 적어 주세요.
 
 ## 성공 기준과 결과
 
@@ -56,6 +65,16 @@ gitbook-hangul-ime-fix.user.js   유저스크립트 본체
 tools/ime-send-keys.ps1          실제 IME 키 입력을 보내는 시험 도구(Windows 전용)
 docs/attempts.md                 원인, 시도별 결과, 시험 방법
 ```
+
+## 배포와 버전
+
+- 배포는 `main`의 [gitbook-hangul-ime-fix.user.js](gitbook-hangul-ime-fix.user.js) 파일 자체입니다. 헤더의 `@updateURL`·`@downloadURL`이 이 파일을 가리킵니다.
+- `main`에 병합한 변경은 곧바로 설치한 모든 사용자에게 업데이트로 전달됩니다. 사용자에게 보낼 변경은 `@version`을 올려야 업데이트가 감지됩니다.
+- 병합 전에 [docs/attempts.md](docs/attempts.md)의 시험 방법으로 위 성공 기준을 다시 확인합니다.
+
+## 라이선스
+
+[MIT](LICENSE)
 
 ## 정해야 할 것
 

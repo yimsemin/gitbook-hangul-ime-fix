@@ -3,6 +3,11 @@
 // @namespace    https://github.com/yimsemin/gitbook-hangul-ime-fix
 // @version      0.3.1
 // @description  GitBook 편집기(구버전 Slate)가 한글 조합 직후의 스페이스·Enter·커서 이동을 놓치고, 코멘트 입력창에서 조합 중인 글자를 지우는 문제를 보정한다.
+// @license      MIT
+// @homepageURL  https://github.com/yimsemin/gitbook-hangul-ime-fix
+// @supportURL   https://github.com/yimsemin/gitbook-hangul-ime-fix/issues
+// @downloadURL  https://raw.githubusercontent.com/yimsemin/gitbook-hangul-ime-fix/main/gitbook-hangul-ime-fix.user.js
+// @updateURL    https://raw.githubusercontent.com/yimsemin/gitbook-hangul-ime-fix/main/gitbook-hangul-ime-fix.user.js
 // @match        https://app.gitbook.com/*
 // @run-at       document-start
 // @grant        none
