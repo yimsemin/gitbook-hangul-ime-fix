@@ -52,7 +52,7 @@ OS 한글 IME는 그대로 두고, 페이지에서 편집기 객체를 찾아 �
 ## 범위와 한계
 
 - 대상: `https://app.gitbook.com/*`의 본문과 코멘트 입력창. 다른 사이트, GitBook 공개 문서 화면, 일본어·중국어 IME는 다루지 않습니다.
-- 확인한 환경: Windows 11, Chrome, Tampermonkey, Microsoft 한글 IME. Firefox와 Violentmonkey는 확인하지 않았습니다.
+- 확인한 환경: Windows 11, Chrome, Firefox.
 - GitBook 내부 구조(구버전 Slate, React 내부 속성)에 기대므로 GitBook 업데이트로 깨질 수 있습니다. 편집기 객체를 찾지 못하면 아무것도 하지 않습니다.
 
 ## 성공 기준과 결과
