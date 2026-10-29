@@ -11,7 +11,8 @@
 
 - 검증은 [tools/ime-send-keys.ps1](tools/ime-send-keys.ps1)로 실제 한글 IME 키 입력을 보내서 한다. 완성된 글자를 넣는 방식은 증상이 나타나지 않아 검증이 되지 않는다.
 - 시나리오, 대조군 절차, 키를 보내기 전 확인할 것(시험 탭이 별도 창의 활성 탭이고 창 제목이 유일한지)은 [docs/attempts.md](docs/attempts.md)의 "시험 방법"을 따른다.
-- 시험은 변경 요청 #3 안의 시험용 페이지에서만 하고, 발행·병합하지 않는다.
+- 시험은 제작자의 시험용 변경 요청 안의 시험 전용 페이지에서만 하고, 발행·병합하지 않는다.
+- [tools/ime-send-keys.ps1](tools/ime-send-keys.ps1)은 Windows 키 입력 API와 Microsoft IME에 의존하는 Windows 전용 시험 도구이며, 플랫폼 중립 규칙의 예외다. 유저스크립트 본체는 플랫폼 중립이다.
 
 <!-- ysm-baseline:start -->
 ## 공통 작업 규칙 (ysm baseline)
