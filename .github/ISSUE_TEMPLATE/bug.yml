@@ -1,0 +1,46 @@
+name: 문제 신고
+description: 한글 입력이 깨지거나 스크립트가 동작하지 않을 때
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: 올리기 전에 [같은 제보](https://github.com/yimsemin/gitbook-hangul-ime-fix/issues?q=is%3Aissue)가 있는지 확인해 주세요.
+  - type: input
+    id: environment
+    attributes:
+      label: 사용 환경
+      description: 운영체제, 브라우저, 한글 입력기
+      placeholder: Windows 11, Chrome 또는 Firefox, Microsoft 한글 IME
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 스크립트 버전
+      description: Tampermonkey 대시보드에서 확인할 수 있습니다.
+      placeholder: x.x.x
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 재현 순서
+      placeholder: |
+        1. 본문에 "이것은 문구입니다"를 입력
+        2. Home을 눌러 앞쪽으로 이동
+        3. "테스트 "를 입력
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 기대한 결과
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 실제 결과
+      description: 화면 캡처나 GIF를 붙이면 확인이 빠릅니다.
+    validations:
+      required: true
