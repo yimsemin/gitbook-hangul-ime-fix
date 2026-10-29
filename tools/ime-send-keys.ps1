@@ -1,5 +1,5 @@
 # Windows 전용 검증 도구: 켜져 있는 Microsoft 한글 IME로 Chrome 창에 실제 키 입력을 보낸다.
-# 사용: ./tools/ime-send-keys.ps1 -Title '*Page 1 - GitBook*' -Keys "rksk ekfk{HOME}{RIGHT}{RIGHT}wk "
+# 사용: ./tools/ime-send-keys.ps1 -Title '*IMETEST - GitBook*' -Keys "rksk ekfk{HOME}{RIGHT}{RIGHT}wk "
 # 글자는 두벌식 영문 자판 키(r=ㄱ, k=ㅏ)로 쓰고, 특수키는 {HOME} {END} {LEFT} {RIGHT} {ENTER} {BS} {HANGUL}(한/영 전환)로 쓴다.
 # -Title은 시험용 창에만 맞는 제목 패턴이어야 한다. 일치하는 창이 정확히 1개가 아니면 아무것도 보내지 않는다.
 param(
