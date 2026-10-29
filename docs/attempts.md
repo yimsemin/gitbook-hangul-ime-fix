@@ -13,7 +13,7 @@ GitBook 편집기에서 한글 IME 입력이 깨지는 문제의 원인, 우회 
 
 - 키 입력 도구: [tools/ime-send-keys.ps1](../tools/ime-send-keys.ps1)이 Windows `keybd_event`로 Chrome 창에 가상 키를 보냅니다. 두벌식 자판 영문 키(`r`=ㄱ, `k`=ㅏ)를 보내면 IME가 `insertCompositionText` 이벤트를 만들어 냅니다.
 - 스크립트 적용: 시험 탭을 새로 고친 뒤 Claude in Chrome의 `javascript_tool`로 유저스크립트 본문을 그대로 실행했습니다. 대조군은 새로 고친 직후 스크립트 없이 실행했습니다.
-- 결과 확인: `javascript_tool`로 편집기 모델 텍스트(`value.document`)와 DOM `innerText`를 함께 읽었습니다. 둘이 같고 기대값과 같아야 통과입니다.
+- 결과 확인: [tools/slate-state.js](../tools/slate-state.js)를 `javascript_tool`로 실행해 편집기 모델 줄, DOM 줄, 두 커서 위치를 함께 읽습니다. 모델과 DOM이 같고 기대값과 같으며 두 커서가 같아야 통과입니다.
 
 | 위치 | 보낸 키 | 기대 결과 |
 |---|---|---|
