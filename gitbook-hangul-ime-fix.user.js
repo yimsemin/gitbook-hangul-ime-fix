@@ -22,7 +22,7 @@
   // 편집기는 compositionend 뒤 다음 프레임에야 조합 상태를 풀기 때문에, 그 사이에 온 입력과 커서 이동을 놓친다.
   const STALE_MS = 500;
   const NAV_KEY = /^(Arrow|Home$|End$|Page)/;
-  const ZERO_WIDTH = new RegExp(`[${String.fromCharCode(0x200b, 0xfeff)}]`, 'g');
+  const ZERO_WIDTH = /[\u200b\ufeff]/g;
   let composing = false;
   let staleUntil = 0;
   // 커서가 어긋났을 때 믿을 쪽. 'dom': 사용자가 커서를 옮겼다. 'model': 편집기가 글자를 넣었다.
@@ -83,6 +83,17 @@
     return node.text === point.domText ? 'caret' : 'text';
   };
 
+  // 커서가 있는 편집기와 두 커서의 어긋남. 편집기 안의 커서가 아니면 null.
+  const current = () => {
+    const point = caretPoint();
+    const root = point && editorRoot(getSelection().anchorNode);
+    const editor = root && findEditor(root);
+    return editor && { editor, root, point, mismatch: caretMismatch(editor, point) };
+  };
+
+  // DOM 커서 위치로 모델 커서를 옮긴다.
+  const placeModelCaret = (editor, point) => editor.change((change) => change.collapseTo(point.key, point.offset));
+
   // 모델 커서 위치에 DOM 커서를 둔다.
   const placeDomCaret = (editor, root) => {
     const { anchorKey, anchorOffset } = editor.value;
@@ -103,14 +114,12 @@
   // 글자는 같은데 커서만 어긋나 있으면 믿을 쪽에 맞춘다.
   const reconcileCaret = () => {
     if (composing || !trust) return;
-    const point = caretPoint();
-    const root = point && editorRoot(getSelection().anchorNode);
-    const editor = root && findEditor(root);
-    if (!editor) return;
-    releaseStaleComposition(editor);
-    if (caretMismatch(editor, point) !== 'caret') return;
-    if (trust === 'dom') editor.change((change) => change.collapseTo(point.key, point.offset));
-    else placeDomCaret(editor, root);
+    const cur = current();
+    if (!cur) return;
+    releaseStaleComposition(cur.editor);
+    if (cur.mismatch !== 'caret') return;
+    if (trust === 'dom') placeModelCaret(cur.editor, cur.point);
+    else placeDomCaret(cur.editor, cur.root);
   };
 
   // 편집기는 insertText를 DOM 커서 위치에 넣는다. DOM이 늦으면 모델 커서에 직접 넣는다.
@@ -122,7 +131,7 @@
       e.stopImmediatePropagation();
       editor.change((change) => change.insertText(e.data));
     } else if (mismatch === 'caret' && trust === 'dom') {
-      editor.change((change) => change.collapseTo(point.key, point.offset));
+      placeModelCaret(editor, point);
     }
     if (isStale()) trust = 'model';
   };
@@ -153,9 +162,10 @@
     if (e.key !== 'Process') composing = false;
     releaseStaleComposition(findEditor(e.target));
     reconcileCaret();
-    if (NAV_KEY.test(e.key) && isStale()) trust = 'dom';
+    if (!isStale()) return;
+    if (NAV_KEY.test(e.key)) trust = 'dom';
     // 조합 직후 Enter로 줄이 나뉘면 모델 커서는 새 줄로 가지만 DOM 커서는 아직 윗줄이다. 그 낡은 커서가 모델을 되돌리지 못하게 한다.
-    if (e.key === 'Enter' && isStale()) trust = 'model';
+    else if (e.key === 'Enter') trust = 'model';
   }, true);
 
   document.addEventListener('beforeinput', (e) => {
@@ -184,12 +194,9 @@
       return;
     }
     // 편집기가 글자를 넣은 뒤 DOM을 아직 다시 그리지 않았으면 DOM 커서가 낡았다. 편집기가 그 커서를 모델에 반영하지 않게 한다.
-    const point = caretPoint();
-    const root = point && editorRoot(getSelection().anchorNode);
-    const editor = root && findEditor(root);
-    const mismatch = editor && caretMismatch(editor, point);
-    if (!mismatch) return;
+    const cur = current();
+    if (!cur || !cur.mismatch) return;
     e.stopImmediatePropagation();
-    if (mismatch === 'caret') placeDomCaret(editor, root);
+    if (cur.mismatch === 'caret') placeDomCaret(cur.editor, cur.root);
   }, true);
 })();
