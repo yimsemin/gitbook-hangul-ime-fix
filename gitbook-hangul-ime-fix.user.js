@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GitBook 한글 입력 보정
 // @namespace    https://github.com/yimsemin/gitbook-hangul-ime-fix
-// @version      0.3.1
+// @version      0.3.2
 // @description  GitBook 편집기(구버전 Slate)가 한글 조합 직후의 스페이스·Enter·커서 이동을 놓치고, 코멘트 입력창에서 조합 중인 글자를 지우는 문제를 보정한다.
 // @license      MIT
 // @homepageURL  https://github.com/yimsemin/gitbook-hangul-ime-fix
@@ -154,6 +154,8 @@
     releaseStaleComposition(findEditor(e.target));
     reconcileCaret();
     if (NAV_KEY.test(e.key) && isStale()) trust = 'dom';
+    // 조합 직후 Enter로 줄이 나뉘면 모델 커서는 새 줄로 가지만 DOM 커서는 아직 윗줄이다. 그 낡은 커서가 모델을 되돌리지 못하게 한다.
+    if (e.key === 'Enter' && isStale()) trust = 'model';
   }, true);
 
   document.addEventListener('beforeinput', (e) => {

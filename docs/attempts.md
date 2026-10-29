@@ -19,6 +19,7 @@ GitBook 편집기에서 한글 IME 입력이 깨지는 문제의 원인, 우회 
 |---|---|---|
 | 본문 | `{END}{ENTER}rksk ekfk akqk{HOME}{RIGHT}{RIGHT}{RIGHT}qk tk dk{HOME}wk{END}rk{ENTER}sk{END}` | 새 줄 `자가나 바 사 아다라 마바가`, 다음 줄 `나` |
 | 코멘트 입력창(빈 상태에서) | `rksk ekfk akqk{HOME}{RIGHT}{RIGHT}{RIGHT}qk tk ` | `가나 바 사 다라 마바` |
+| 코멘트 입력창(빈 상태에서) | `rk{SHIFTENTER}sk{SHIFTENTER}ek fk{SHIFTENTER}ak` | 줄 `가` `나` `다 라` `마`. 커서는 마지막 줄 |
 
 본문 시나리오에는 줄 끝 입력, 줄 중간 스페이스, 조합 중 `Home`, 조합 직후 Enter가 들어 있습니다. 코멘트 입력창에서는 Enter를 보내지 않습니다(제출될 수 있음).
 
@@ -39,6 +40,7 @@ GitBook 편집기에서 한글 IME 입력이 깨지는 문제의 원인, 우회 
 2. **커서 이동 누락(본문·코멘트)**: 조합 직후 `Home` 같은 커서 이동은 DOM에서만 일어나고 모델 커서는 그대로입니다. 편집기에 따로 있는 조합 플래그 때문으로 추정합니다(편집기 소스는 확인하지 않음). 이어서 입력한 글자는 옛 모델 위치로 들어갑니다. 조합이 없을 때 DOM 커서를 옮기면 모델은 50ms 안에 따라옵니다.
 3. **늦은 다시 그리기(코멘트)**: 코멘트 입력창은 모델이 바뀐 뒤 별도 작업(약 5~15ms 뒤)에서 DOM을 다시 그립니다. 한글은 앞 음절의 `compositionend`와 다음 음절의 `compositionstart`가 같은 틱에 오므로, 다시 그리기가 이미 시작된 다음 음절의 조합 노드를 덮어씁니다. 덮어쓰기는 `nodeValue` 변경이거나, 빈 줄의 자리표시 노드를 바꾸는 `childList` 교체입니다. 조합이 끊기면 IME는 `compositionend` 없이 그 글자를 `insertText`로 다시 보냅니다.
 4. **늦은 DOM을 기준으로 한 입력(코멘트)**: 3 때문에 DOM 글자와 DOM 커서가 모델보다 늦을 때가 있습니다. 편집기는 `insertText`를 DOM 위치에 넣고, 그 사이에 온 `selectionchange`로 모델 커서를 낡은 DOM 커서로 되돌립니다.
+5. **조합 직후 줄 나눔 뒤 낡은 커서(코멘트)**: 조합 직후 Shift+Enter로 줄을 나누면 모델 커서는 새 줄로 가는데 DOM 커서는 다시 그리기 전까지 윗줄입니다. 그 사이에 온 `selectionchange`를 편집기가 받아 모델 커서를 윗줄로 되돌립니다. 새 줄은 아래에 생기고 이어서 입력한 글자는 윗줄로 들어갑니다.
 
 기타 관찰
 - `beforeinput`의 `insertCompositionText`는 취소할 수 없습니다. 브라우저가 DOM을 먼저 바꿉니다.
@@ -60,6 +62,7 @@ GitBook 편집기에서 한글 IME 입력이 깨지는 문제의 원인, 우회 
 - 원인 2: `compositionend` 후 500ms 안에 방향키·Home/End·PageUp/Down·마우스로 커서를 옮기면, 다음 `selectionchange` 직후 모델 커서를 DOM 커서로 옮깁니다(`change.collapseTo`).
 - 원인 3: 실제 조합 중에는 커서가 있는 편집기 텍스트 노드에 `nodeValue`를 쓰지 못하게 합니다. 조합이 `compositionend` 없이 끊길 수 있으므로, 조합이 아닌 입력이나 포커스 이탈이 오면 조합이 끝난 것으로 봅니다. `childList` 교체로 끊긴 조합은 막지 못하지만, IME가 다시 보내는 `insertText`를 원인 4의 보정이 바른 위치에 넣습니다.
 - 원인 4: `insertText`를 받았을 때 DOM 글자가 모델과 다르면 가로채서 모델 커서에 직접 넣습니다. 조합 직후 글자를 넣은 뒤에는 DOM과 모델이 어긋난 `selectionchange`를 편집기에 전달하지 않고, 글자가 같으면 DOM 커서를 모델 위치로 옮깁니다.
+- 원인 5: 조합 직후(500ms 안)의 Enter `keydown`에서 모델 커서를 믿는 쪽으로 정해, 낡은 DOM 커서를 편집기에 전달하지 않습니다.
 
 대조 결과(같은 키 입력)
 
@@ -80,4 +83,3 @@ GitBook 편집기에서 한글 IME 입력이 깨지는 문제의 원인, 우회 
 - 조합 중 마우스 클릭으로 커서를 옮기는 경우는 실제 마우스 입력으로 시험하지 않았습니다. 보정 코드는 `mousedown`을 커서 이동으로 처리합니다.
 - 굵게·링크 같은 서식이 있는 줄, 목록·표·코드 블록 안 입력은 시험하지 않았습니다.
 - 조합 중 Backspace, 빠른 연속 입력(키 간격 70~90ms보다 짧은 경우)은 시험하지 않았습니다.
-- Firefox·Violentmonkey는 사용자 환경에서 확인해야 합니다.
